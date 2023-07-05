@@ -36,5 +36,4 @@ async def picture_handler(message: types.Message) -> None:
 
 @router.message()
 async def text_message_handler(message: types.Message) -> None:
-    print(message.photo)
     await message.answer("Пожалуйста, пришлите картинку.")
