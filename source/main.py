@@ -1,16 +1,18 @@
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-from aiogram.types import Message
-from aiogram import Router
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+
+from source import config
+
+from aiogram import Bot, Dispatcher
+import pymysql
 
 from routes import *
 
-with open("SECRET_TOKEN.txt") as file:
-    TOKEN = file.read()
-bot = Bot(TOKEN)
+bot = Bot(config.token)
 
 
 async def set_default_commands():
@@ -21,8 +23,54 @@ async def set_default_commands():
     ])
 
 
+def db_connect():
+    try:
+        connection = pymysql.connect(
+            host=config.host,
+            port=config.port,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        print("Successfully connected to database!")
+    except Exception as ex:
+        print("Connection refused...")
+        print(ex)
+        exit(0)
+
+
+def get_storage():
+    return MemoryStorage()
+
+
+def get_kb():
+    reply = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text="Жмыхнуть изображение"),
+                KeyboardButton(text="Поиграть в игру с ChatGPT")
+            ]
+        ],
+        resize_keyboard=True)
+    inline = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="Жмыхнуть изображение", callback_data="zhmyh"),
+                InlineKeyboardButton(text="Поиграть в игру с ChatGPT", callback_data="game")
+            ],
+            [
+                InlineKeyboardButton(text="Посмотреть статистику", callback_data="stats")
+            ]
+        ]
+    )
+    return reply
+
+
 async def main() -> None:
-    dp = Dispatcher()
+    # db_connect()
+    storage = get_storage()
+    dp = Dispatcher(storage=storage)
     dp.include_router(router)
     await set_default_commands()
     await dp.start_polling(bot)
