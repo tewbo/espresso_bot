@@ -1,16 +1,17 @@
+import json
+from io import BytesIO
+
+from aiogram import F
+from aiogram import Router
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, BufferedInputFile
-from aiogram import Router
-from aiogram import F
-from aiogram.types import FSInputFile
-from source.carving import make_carving
-import json
-from source import chatgpt
-from source.main import bot, get_kb
+from aiogram.types import Message, BufferedInputFile
+
+import chatgpt
 from StatesGroups import *
-from io import BytesIO
+from carving import make_carving
+from main import bot, get_kb
 
 message_type = 'default'
 

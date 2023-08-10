@@ -1,15 +1,12 @@
 import asyncio
 import logging
 
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-
-from source import config
-
-from aiogram import Bot, Dispatcher
 import pymysql
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+import config
 from routes import *
 
 bot = Bot(config.token)
