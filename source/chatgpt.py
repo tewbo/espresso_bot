@@ -18,3 +18,13 @@ def send_message_with_flag(content: str) -> str:
         ]
     )
     return completion.choices[0].message.content
+
+
+def send_dalle_image(prompt: str) -> str:
+    response = openai.Image.create(
+        prompt=prompt,
+        n=1,
+        size="1024x1024",
+    )
+    image_url = response['data'][0]['url']
+    return image_url

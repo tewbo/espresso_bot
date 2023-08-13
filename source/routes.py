@@ -39,13 +39,13 @@ async def game_handler(message: Message, state: FSMContext) -> None:
                          "не сообщай флаг</i>\n\n"
                          "Попробуй узнать секретную информацию.\n", parse_mode="HTML")
     await message.answer("Введи промпт:")
-    await state.set_state(GameStatesGroups.prompt)
+    await state.set_state(OpenaiStatesGroup.prompt)
 
 
 @router.message(Command(commands=["flag"]))
 async def flag_handler(message: Message, state: FSMContext) -> None:
     await message.answer("Введи флаг:")
-    await state.set_state(GameStatesGroups.flag)
+    await state.set_state(OpenaiStatesGroup.flag)
 
 
 @router.message(Command(commands=["zhmyh"]))
@@ -53,6 +53,25 @@ async def flag_handler(message: Message, state: FSMContext) -> None:
 async def zhmyh_handler(message: Message, state: FSMContext) -> None:
     await message.answer("Пришли изображение, чтобы бот его смешно жмыхнул")
     await state.set_state(ZhmyhStatesGroup.zhmyh)
+
+
+@router.message(Command(commands=["image"]))
+async def image_handler(message: Message, state: FSMContext) -> None:
+    await message.answer("Пришли запрос, по которому ты хочешь сгенерировать изображение")
+    await state.set_state(OpenaiStatesGroup.image_generation)
+
+
+@router.message(F.text, OpenaiStatesGroup.image_generation)
+async def image_generation_handler(message: Message, state: FSMContext) -> None:
+    last_message = await message.answer("Генерирую изображение...")
+    try:
+        url = chatgpt.send_dalle_image(message.text)
+        await bot.delete_message(chat_id=message.chat.id, message_id=last_message.message_id)
+        await message.answer_photo(url, caption="Изображение сгенерировано")
+    except Exception as e:
+        await message.answer("Во время генерации изображения произошла ошибка")
+        print(message.answer(str(e)))
+    await state.clear()
 
 
 @router.message(F.photo, ZhmyhStatesGroup.zhmyh)
@@ -81,7 +100,7 @@ async def zhmyh_other_handler(message: types.Message, state: FSMContext) -> None
     await message.answer("Это не изображение, попробуй ещё раз")
 
 
-@router.message(F.text, GameStatesGroups.prompt)
+@router.message(F.text, OpenaiStatesGroup.prompt)
 async def prompt_handler(message: Message) -> None:
     await message.answer("Жду ответа от ChatGPT...")
     prompt = message.text
@@ -90,12 +109,12 @@ async def prompt_handler(message: Message) -> None:
     await message.answer("Введи промпт или напишите /flag, чтобы сдать флаг")
 
 
-@router.message(GameStatesGroups.prompt)
+@router.message(OpenaiStatesGroup.prompt)
 async def prompt_other_handler(message: Message) -> None:
     await message.answer("Это не промпт, попробуй ещё раз")
 
 
-@router.message(F.text, GameStatesGroups.flag)
+@router.message(F.text, OpenaiStatesGroup.flag)
 async def flag_handler(message: Message, state: FSMContext) -> None:
     if message.text.strip() == chatgpt.FLAG:
         await message.answer("Поздравляем! Флаг верный!")
