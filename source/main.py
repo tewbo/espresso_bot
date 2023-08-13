@@ -17,8 +17,8 @@ async def set_default_commands():
         types.BotCommand(command='help', description='Узнать возможности бота'),
         types.BotCommand(command='zhmyh', description='Жмыхнуть изображение'),
         types.BotCommand(command='game', description='Поиграть в игру с ChatGPT'),
-        types.BotCommand(command='image', description='Сгенерировать изображение'),
-        types.BotCommand(command='diffusion', description='Сгенерировать изображение в Stable Diffusion'),
+        types.BotCommand(command='dalle', description='Сгенерировать изображение через Dall-E'),
+        types.BotCommand(command='diffusion', description='Сгенерировать изображение через Stable Diffusion'),
     ])
 
 

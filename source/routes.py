@@ -29,7 +29,7 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     await message.answer(f"""Привет, *{message.from_user.full_name}*!
 Этот бот умеет жмыхать изображения и генерировать пикчи по запросам.
 
-Чтобы сгенерировать изображение, напишите `/image <запрос>` или `/diffusion <запрос>`.
+Чтобы сгенерировать изображение, напишите `/dalle <запрос>` или `/diffusion <запрос>`.
 
 Чтобы жмыхнуть картинку, напишите /zhmyh.
 
@@ -63,7 +63,7 @@ async def zhmyh_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(ZhmyhStatesGroup.zhmyh)
 
 
-@router.message(Command(commands=["image"]))
+@router.message(Command(commands=["dalle"]))
 async def image_handler(message: Message, state: FSMContext) -> None:
     print(message.text)
     wordlist = message.text.split()
