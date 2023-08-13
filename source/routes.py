@@ -26,9 +26,14 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     base[str(message.chat.id)] = message.from_user.full_name
     with open("data_base.json", "w") as db:
         json.dump(base, db)
-    await message.answer(f"Привет, *{message.from_user.full_name}*!\n"
-                         f"Этот бот умеет жмыхать изображения и генерировать пикчи по запросам.\nТакже тут есть игра с chatGPT.\n"
-                         f"Чтобы сгенерировать изображение, напишите ```\n/image <запрос>``` или ```\n/diffusion <запрос>```",
+    await message.answer(f"""Привет, *{message.from_user.full_name}*!
+Этот бот умеет жмыхать изображения и генерировать пикчи по запросам.
+
+Чтобы сгенерировать изображение, напишите `/image <запрос>` или `/diffusion <запрос>`.
+
+Чтобы жмыхнуть картинку, напишите /zhmyh.
+
+Чтобы поиграть в игру с ChatGPT, напишите /game.""",
                          parse_mode="Markdown",
                          reply_markup=get_kb())
 
