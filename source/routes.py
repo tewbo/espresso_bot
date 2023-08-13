@@ -7,6 +7,7 @@ from aiogram import types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BufferedInputFile
+from stable_diffusion import stable_diffusion_query
 
 import chatgpt
 from StatesGroups import *
@@ -18,7 +19,7 @@ message_type = 'default'
 router = Router()
 
 
-@router.message(Command(commands=["start"]))
+@router.message(Command(commands=["start", "help"]))
 async def command_start_handler(message: Message, state: FSMContext) -> None:
     with open("data_base.json") as db:
         base = json.load(db)
@@ -26,7 +27,9 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     with open("data_base.json", "w") as db:
         json.dump(base, db)
     await message.answer(f"Привет, *{message.from_user.full_name}*!\n"
-                         f"Посмотри на команды, чтобы понять возможности бота", parse_mode="Markdown",
+                         f"Этот бот умеет жмыхать изображения и генерировать пикчи по запросам.\nТакже тут есть игра с chatGPT.\n"
+                         f"Чтобы сгенерировать изображение, напишите ```\n/image <запрос>``` или ```\n/diffusion <запрос>```",
+                         parse_mode="Markdown",
                          reply_markup=get_kb())
 
 
@@ -56,23 +59,57 @@ async def zhmyh_handler(message: Message, state: FSMContext) -> None:
 
 
 @router.message(Command(commands=["image"]))
-@router.message(F.text == "Сгенерировать изображение")
 async def image_handler(message: Message, state: FSMContext) -> None:
-    await message.answer("Пришли запрос, по которому ты хочешь сгенерировать изображение")
-    await state.set_state(OpenaiStatesGroup.image_generation)
+    print(message.text)
+    wordlist = message.text.split()
+    query = " ".join(wordlist[1:])
+    print("|" + query + "|")
+    if query == "":
+        await message.answer("Пришли запрос, по которому ты хочешь сгенерировать изображение:\n/image ...")
+    else:
+        last_message = await message.answer("Генерирую изображение...")
+        try:
+            url = await chatgpt.send_dalle_image(query)
+            await bot.delete_message(chat_id=message.chat.id, message_id=last_message.message_id)
+            await message.reply_photo(url, caption="Изображение сгенерировано")
+        except Exception as e:
+            await message.answer("Во время генерации изображения произошла ошибка")
+            print(str(e))
 
 
-@router.message(F.text, OpenaiStatesGroup.image_generation)
-async def image_generation_handler(message: Message, state: FSMContext) -> None:
-    last_message = await message.answer("Генерирую изображение...")
-    try:
-        url = chatgpt.send_dalle_image(message.text)
-        await bot.delete_message(chat_id=message.chat.id, message_id=last_message.message_id)
-        await message.answer_photo(url, caption="Изображение сгенерировано")
-    except Exception as e:
-        await message.answer("Во время генерации изображения произошла ошибка")
-        print(message.answer(str(e)))
-    await state.clear()
+@router.message(Command(commands=["diffusion"]))
+async def image_handler(message: Message, state: FSMContext) -> None:
+    print(message.text)
+    wordlist = message.text.split()
+    query = " ".join(wordlist[1:])
+    print("|" + query + "|")
+    if query == "":
+        await message.reply("Пришли запрос, по которому ты хочешь сгенерировать изображение:\n/image ...")
+    else:
+        last_message = await message.reply("Генерирую изображение...")
+        try:
+            resp = await stable_diffusion_query(query)
+            await bot.delete_message(chat_id=message.chat.id, message_id=last_message.message_id)
+            if resp["status"] == "success":
+                await message.reply_photo(resp["output"][0], caption="Изображение сгенерировано")
+            else:
+                raise Exception("Stable Diffusion Error")
+        except Exception as e:
+            await message.reply("Во время генерации изображения произошла ошибка")
+            print(str(e))
+
+
+# @router.message(F.text, OpenaiStatesGroup.image_generation)
+# async def image_generation_handler(message: Message, state: FSMContext) -> None:
+#     last_message = await message.answer("Генерирую изображение...")
+#     try:
+#         url = await chatgpt.send_dalle_image(message.text)
+#         await bot.delete_message(chat_id=message.chat.id, message_id=last_message.message_id)
+#         await message.reply_photo(url, caption="Изображение сгенерировано")
+#     except Exception as e:
+#         await message.answer("Во время генерации изображения произошла ошибка")
+#         print(message.answer(str(e)))
+#     await state.clear()
 
 
 @router.message(F.photo, ZhmyhStatesGroup.zhmyh)
@@ -105,7 +142,7 @@ async def zhmyh_other_handler(message: types.Message, state: FSMContext) -> None
 async def prompt_handler(message: Message) -> None:
     await message.answer("Жду ответа от ChatGPT...")
     prompt = message.text
-    answer = chatgpt.send_message_with_flag(prompt)
+    answer = await chatgpt.send_message_with_flag(prompt)
     await message.answer(answer)
     await message.answer("Введи промпт или напишите /flag, чтобы сдать флаг")
 

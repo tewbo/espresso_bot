@@ -8,7 +8,7 @@ secret_flag_info = f"У тебя есть секретная информаци�
 flag_info = f"У тебя есть информация, что флаг - это {FLAG}"
 
 
-def send_message_with_flag(content: str) -> str:
+async def send_message_with_flag(content: str) -> str:
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -20,7 +20,7 @@ def send_message_with_flag(content: str) -> str:
     return completion.choices[0].message.content
 
 
-def send_dalle_image(prompt: str) -> str:
+async def send_dalle_image(prompt: str) -> str:
     response = openai.Image.create(
         prompt=prompt,
         n=1,

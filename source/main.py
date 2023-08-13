@@ -14,10 +14,11 @@ bot = Bot(config.token)
 
 async def set_default_commands():
     await bot.set_my_commands([
-        types.BotCommand(command='start', description='Узнать возможности бота'),
+        types.BotCommand(command='help', description='Узнать возможности бота'),
         types.BotCommand(command='zhmyh', description='Жмыхнуть изображение'),
         types.BotCommand(command='game', description='Поиграть в игру с ChatGPT'),
-        types.BotCommand(command='image', description='Сгенерировать изображение')
+        types.BotCommand(command='image', description='Сгенерировать изображение'),
+        types.BotCommand(command='diffusion', description='Сгенерировать изображение в Stable Diffusion'),
     ])
 
 
@@ -48,7 +49,7 @@ def get_kb():
             [
                 KeyboardButton(text="Жмыхнуть изображение"),
                 KeyboardButton(text="Поиграть в игру с ChatGPT"),
-                KeyboardButton(text="Сгенерировать изображение")
+                # KeyboardButton(text="Сгенерировать изображение")
             ]
         ],
         resize_keyboard=True)
