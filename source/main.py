@@ -16,7 +16,8 @@ async def set_default_commands():
     await bot.set_my_commands([
         types.BotCommand(command='start', description='Узнать возможности бота'),
         types.BotCommand(command='zhmyh', description='Жмыхнуть изображение'),
-        types.BotCommand(command='game', description='Поиграть в игру с ChatGPT')
+        types.BotCommand(command='game', description='Поиграть в игру с ChatGPT'),
+        types.BotCommand(command='image', description='Сгенерировать изображение')
     ])
 
 
@@ -46,21 +47,11 @@ def get_kb():
         keyboard=[
             [
                 KeyboardButton(text="Жмыхнуть изображение"),
-                KeyboardButton(text="Поиграть в игру с ChatGPT")
+                KeyboardButton(text="Поиграть в игру с ChatGPT"),
+                KeyboardButton(text="Сгенерировать изображение")
             ]
         ],
         resize_keyboard=True)
-    inline = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Жмыхнуть изображение", callback_data="zhmyh"),
-                InlineKeyboardButton(text="Поиграть в игру с ChatGPT", callback_data="game")
-            ],
-            [
-                InlineKeyboardButton(text="Посмотреть статистику", callback_data="stats")
-            ]
-        ]
-    )
     return reply
 
 

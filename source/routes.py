@@ -56,6 +56,7 @@ async def zhmyh_handler(message: Message, state: FSMContext) -> None:
 
 
 @router.message(Command(commands=["image"]))
+@router.message(F.text == "Сгенерировать изображение")
 async def image_handler(message: Message, state: FSMContext) -> None:
     await message.answer("Пришли запрос, по которому ты хочешь сгенерировать изображение")
     await state.set_state(OpenaiStatesGroup.image_generation)
